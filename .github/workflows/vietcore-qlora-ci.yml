@@ -1,0 +1,25 @@
+name: VietCore QLoRA CPU preflight
+on:
+  pull_request:
+    paths:
+      - 'vietcore/**'
+      - '.github/workflows/vietcore-qlora-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cpu-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Syntax check
+        run: python -m py_compile vietcore/benchmark_qlora.py
+      - name: Standard-library CPU tests
+        run: python -m unittest discover -s vietcore/tests -v
